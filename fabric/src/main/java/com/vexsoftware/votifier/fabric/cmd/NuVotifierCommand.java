@@ -40,7 +40,7 @@ public class NuVotifierCommand {
     }
 
     private static int reload(CommandContext<CommandSourceStack> ctx) {
-        ctx.getSource().sendSuccess(Component.literal("Reloading NuVotifier...").withStyle(ChatFormatting.GRAY), false);
+        ctx.getSource().sendSuccess(() -> Component.literal("Reloading NuVotifier...").withStyle(ChatFormatting.GRAY), false);
         if (plugin.reload()) {
             return 1;
         } else {

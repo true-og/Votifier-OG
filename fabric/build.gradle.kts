@@ -15,9 +15,9 @@ configurations {
 }
 
 dependencies {
-    minecraft("com.mojang:minecraft:1.19.4")
+    minecraft("com.mojang:minecraft:1.20.1")
     mappings(loom.officialMojangMappings())
-    modImplementation("net.fabricmc:fabric-loader:0.14.19")
+    modImplementation("net.fabricmc:fabric-loader:0.14.21")
 
     // Make a set of all api modules we wish to use
     setOf(
@@ -27,7 +27,7 @@ dependencies {
         "fabric-networking-api-v1"
     ).forEach {
         // Add each module as a dependency
-        modImplementation(fabricApi.module(it, "0.80.0+1.19.4"))
+        modImplementation(fabricApi.module(it, "0.86.0+1.20.1"))
     }
 
     "implementation"("org.yaml:snakeyaml:2.0")
