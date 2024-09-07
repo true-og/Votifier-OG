@@ -2,6 +2,7 @@ import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
 
 plugins {
     `java-library`
+	`eclipse`
 }
 
 applyPlatformAndCoreConfiguration()
@@ -15,9 +16,7 @@ dependencies {
     "implementation"(project(":nuvotifier-api"))
     "implementation"(project(":nuvotifier-common"))
     "implementation"(project(":nuvotifier-bukkit"))
-    "implementation"(project(":nuvotifier-bungeecord"))
     "implementation"(project(":nuvotifier-sponge"))
-    "implementation"(project(":nuvotifier-fabric"))
     "implementation"(project(":nuvotifier-velocity"))
 }
 
@@ -36,9 +35,7 @@ tasks.named<ShadowJar>("shadowJar") {
         include(dependency(":nuvotifier-api"))
         include(dependency(":nuvotifier-common"))
         include(dependency(":nuvotifier-bukkit"))
-        include(dependency(":nuvotifier-bungeecord"))
         include(dependency(":nuvotifier-sponge"))
-        include(dependency(":nuvotifier-fabric"))
         include(dependency(":nuvotifier-velocity"))
     }
 

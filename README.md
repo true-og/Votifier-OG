@@ -1,24 +1,10 @@
-# NuVotifier
+# Votifier-OG
 
-NuVotifier is a secure alternative to using the original Votifier project.
-NuVotifier will work in place of Votifier - any vote listener that supports
-Votifier will also support NuVotifier.
+Votifier-OG is a 1.19.4 fork of NuVotifier, which is a secure alternative to using the original Votifier project.
+Votifier-OG will work in place of NuVotifier, and will work in place of Votifier - any vote listener that supports
+Votifier will also support NuVotifier and Votifier-OG.
 
-NuVotifier supports many different platforms using the same universal JAR:
-
-+ Bukkit / Spigot / Paper >=1.7.10
-+ Sponge 7
-+ BungeeCord / Waterfall
-+ Velocity
-
-NuVotifier also adds forwarding and listener test commands not present in the
-original version.
-
-[Setup Guide](https://github.com/NuVotifier/NuVotifier/wiki/Setup-Guide)
-
-[Troubleshooting Guide](https://github.com/NuVotifier/NuVotifier/wiki/Troubleshooting-Guide)
-
-[Developer Information](https://github.com/NuVotifier/NuVotifier/wiki/Developer-Documentation)
+Votifier-OG supports Rurpur 1.19.4. It is maintained by [TrueOG Network](https://trueog.net/)
 
 # License
 

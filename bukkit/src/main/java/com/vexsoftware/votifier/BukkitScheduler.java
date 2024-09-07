@@ -1,10 +1,11 @@
 package com.vexsoftware.votifier;
 
-import com.vexsoftware.votifier.platform.scheduler.ScheduledVotifierTask;
-import com.vexsoftware.votifier.platform.scheduler.VotifierScheduler;
+import java.util.concurrent.TimeUnit;
+
 import org.bukkit.scheduler.BukkitTask;
 
-import java.util.concurrent.TimeUnit;
+import com.vexsoftware.votifier.platform.scheduler.ScheduledVotifierTask;
+import com.vexsoftware.votifier.platform.scheduler.VotifierScheduler;
 
 class BukkitScheduler implements VotifierScheduler {
     private final NuVotifierBukkit plugin;

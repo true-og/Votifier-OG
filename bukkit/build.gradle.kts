@@ -10,8 +10,8 @@ applyShadowConfiguration()
 
 repositories {
     maven {
-        name = "paper"
-        url = uri("https://papermc.io/repo/repository/maven-public/")
+        name = "purpur"
+        url = uri("https://repo.purpurmc.org/snapshots")
     }
 }
 
@@ -20,7 +20,7 @@ configurations {
 }
 
 dependencies {
-    "compileOnly"("io.papermc.paper:paper-api:1.18.2-R0.1-SNAPSHOT")
+    "compileOnly"("org.purpurmc.purpur:purpur-api:1.19.4-R0.1-SNAPSHOT")
     "api"(project(":nuvotifier-api"))
     "api"(project(":nuvotifier-common"))
 }
