@@ -1,23 +1,26 @@
 package com.vexsoftware.votifier.net.protocol;
 
-import com.vexsoftware.votifier.platform.VotifierPlugin;
-import com.vexsoftware.votifier.model.Vote;
-import com.vexsoftware.votifier.net.VotifierSession;
-import com.vexsoftware.votifier.net.protocol.v1crypto.RSA;
-import com.vexsoftware.votifier.util.QuietException;
-import io.netty.buffer.ByteBuf;
-import io.netty.buffer.Unpooled;
-import io.netty.channel.embedded.EmbeddedChannel;
-import io.netty.handler.codec.CorruptedFrameException;
-import io.netty.handler.codec.DecoderException;
-import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.nio.charset.StandardCharsets;
 import java.security.KeyFactory;
 import java.security.PublicKey;
 import java.security.spec.X509EncodedKeySpec;
 
-import static org.junit.jupiter.api.Assertions.*;
+import org.junit.jupiter.api.Test;
+
+import com.vexsoftware.votifier.model.Vote;
+import com.vexsoftware.votifier.net.VotifierSession;
+import com.vexsoftware.votifier.net.protocol.v1crypto.RSA;
+import com.vexsoftware.votifier.platform.VotifierPlugin;
+
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
+import io.netty.channel.embedded.EmbeddedChannel;
+import io.netty.handler.codec.DecoderException;
 
 public class VotifierProtocol1DecoderTest {
     private static final VotifierSession SESSION = new VotifierSession();
@@ -79,7 +82,7 @@ public class VotifierProtocol1DecoderTest {
         byte[] encrypted = VoteUtil.encodePOJOv1(new Vote("Test", "test", "test", "test"), badPublicKey);
         ByteBuf encryptedByteBuf = Unpooled.wrappedBuffer(encrypted);
 
-        assertThrows(DecoderException.class, ()->channel.writeInbound(encryptedByteBuf));
+        assertThrows(DecoderException.class, ()-> channel.writeInbound(encryptedByteBuf));
         channel.close();
     }
 }

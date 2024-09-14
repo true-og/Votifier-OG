@@ -1,49 +1,50 @@
 package com.vexsoftware.votifier.support.forwarding;
 
-import com.vexsoftware.votifier.model.Vote;
-import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import org.junit.jupiter.api.Test;
+
+import com.vexsoftware.votifier.model.Vote;
 
 public class PMForwardingSinkTest {
 
-    @Test
-    public void testSuccessfulMultiDecode() throws Exception {
-        List<Vote> receivedVotes = new ArrayList<>();
-        ForwardedVoteListener vl = receivedVotes::add;
+	@Test
+	public void testSuccessfulMultiDecode() throws Exception {
 
-        List<Vote> sentVotes = new ArrayList<>(Arrays.asList(
-                new Vote("serviceA", "usernameA", "1.1.1.1", "1546300800"),
-                new Vote("serviceB", "usernameBBBBBBB", "1.2.23.4", "1514764800")
-        ));
+		List<Vote> receivedVotes = new ArrayList<>();
+		ForwardedVoteListener vl = receivedVotes::add;
 
-        StringBuilder message = new StringBuilder();
+		List<Vote> sentVotes = new ArrayList<>(Arrays.asList(
+				new Vote("serviceA", "usernameA", "1.1.1.1", "1546300800"),
+				new Vote("serviceB", "usernameBBBBBBB", "1.2.23.4", "1514764800")
+				));
 
-        for (Vote v : sentVotes) {
-            message.append(v.serialize());
-        }
+		StringBuilder message = new StringBuilder();
 
-        byte[] messageBytes = message.toString().getBytes(StandardCharsets.UTF_8);
-        System.out.println(message.toString());
+		for (Vote v : sentVotes) {
+			message.append(v.serialize());
+		}
 
-        AbstractPluginMessagingForwardingSink sink = new AbstractPluginMessagingForwardingSink(vl) {
-            @Override
-            public void halt() {
+		byte[] messageBytes = message.toString().getBytes(StandardCharsets.UTF_8);
 
-            }
-        };
+		AbstractPluginMessagingForwardingSink sink = new AbstractPluginMessagingForwardingSink(vl) {
+			@Override
+			public void halt() {
 
-        sink.handlePluginMessage(messageBytes);
+			}
+		};
 
-        assertEquals(sentVotes.size(), receivedVotes.size());
+		sink.handlePluginMessage(messageBytes);
 
-        for (int i = 0; i < receivedVotes.size(); i++) {
-            assertEquals(sentVotes.get(i), receivedVotes.get(i));
-        }
-    }
+		assertEquals(sentVotes.size(), receivedVotes.size());
+
+		for (int i = 0; i < receivedVotes.size(); i++) {
+			assertEquals(sentVotes.get(i), receivedVotes.get(i));
+		}
+	}
 }

@@ -16,8 +16,6 @@ dependencies {
     "implementation"(project(":nuvotifier-api"))
     "implementation"(project(":nuvotifier-common"))
     "implementation"(project(":nuvotifier-bukkit"))
-    "implementation"(project(":nuvotifier-sponge"))
-    "implementation"(project(":nuvotifier-velocity"))
 }
 
 tasks.named<Jar>("jar") {
@@ -35,8 +33,6 @@ tasks.named<ShadowJar>("shadowJar") {
         include(dependency(":nuvotifier-api"))
         include(dependency(":nuvotifier-common"))
         include(dependency(":nuvotifier-bukkit"))
-        include(dependency(":nuvotifier-sponge"))
-        include(dependency(":nuvotifier-velocity"))
     }
 
     exclude("GradleStart**")
