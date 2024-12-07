@@ -1,4 +1,4 @@
-name: Votifier
+name: Votifier-OG
 main: com.vexsoftware.votifier.NuVotifierBukkit
 version: "${internalVersion}"
 description: A plugin that gets notified when votes are made for the server on toplists.

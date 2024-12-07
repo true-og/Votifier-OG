@@ -54,3 +54,14 @@ tasks.named<ShadowJar>("shadowJar") {
 tasks.named("assemble").configure {
     dependsOn("shadowJar")
 }
+
+tasks.register("runCopyJarScript", Exec::class) {
+    group = "build"
+    description = "Runs the copyjar.sh script after build completion."
+    workingDir(rootDir)
+    commandLine("sh", "copyjar.sh", project.version.toString())
+}
+
+tasks.named("build") {
+    finalizedBy("runCopyJarScript")
+}
