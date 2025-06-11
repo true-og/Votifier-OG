@@ -7,6 +7,20 @@
 # netbeans
 /nbproject
 
+# eclipse
+api/.classpath
+api/.project
+api/.settings/
+bukkit/.classpath
+bukkit/.project
+bukkit/.settings/
+common/.classpath
+common/.project
+common/.settings/
+universal/.classpath
+universal/.project
+universal/.settings/
+
 # we use maven!
 /build.xml
 
