@@ -2,7 +2,10 @@ import org.ajoberstar.grgit.Grgit
 
 plugins {
     id("net.kyori.blossom") version "1.2.0" apply false
+    id("com.gradleup.shadow") apply false
 }
+
+
 
 logger.lifecycle("""
 *******************************************

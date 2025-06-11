@@ -2,41 +2,36 @@ import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
 
 plugins {
     `java-library`
-	`eclipse`
+    eclipse
+    id("com.gradleup.shadow")
 }
 
 applyPlatformAndCoreConfiguration()
-applyShadowConfiguration()
 
-configurations {
-    compileClasspath.get().extendsFrom(create("shadeOnly"))
-}
+val shadeOnly = configurations.findByName("shadeOnly") ?: configurations.create("shadeOnly")
+configurations.compileClasspath.get().extendsFrom(shadeOnly)
 
 dependencies {
-    "implementation"(project(":nuvotifier-api"))
-    "implementation"(project(":nuvotifier-common"))
-    "implementation"(project(":nuvotifier-bukkit"))
+    implementation(project(":nuvotifier-api"))
+    implementation(project(":nuvotifier-common"))
+    implementation(project(":nuvotifier-bukkit"))
 }
 
 tasks.named<Jar>("jar") {
-    val projectVersion = project.version
-    inputs.property("projectVersion", projectVersion)
     manifest {
-        attributes("Implementation-Version" to projectVersion)
+        attributes("Implementation-Version" to project.version)
     }
 }
 
-tasks.named<ShadowJar>("shadowJar") {
-    configurations = listOf(project.configurations["shadeOnly"], project.configurations["runtimeClasspath"])
-
+tasks.withType<ShadowJar>().configureEach {
+    configurations = listOf(shadeOnly, project.configurations["runtimeClasspath"])
     dependencies {
         include(dependency(":nuvotifier-api"))
         include(dependency(":nuvotifier-common"))
         include(dependency(":nuvotifier-bukkit"))
     }
-
     exclude("GradleStart**")
-    exclude(".cache");
+    exclude(".cache")
     exclude("LICENSE*")
     exclude("META-INF/services/**")
     exclude("META-INF/maven/**")
@@ -46,6 +41,7 @@ tasks.named<ShadowJar>("shadowJar") {
     exclude("**/module-info.class")
 }
 
-tasks.named("assemble").configure {
+tasks.named("assemble") {
     dependsOn("shadowJar")
 }
+

@@ -2,11 +2,11 @@ import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
 
 plugins {
     `java-library`
+    id("com.gradleup.shadow")
 }
 
 applyPlatformAndCoreConfiguration()
 applyCommonArtifactoryConfig()
-applyShadowConfiguration()
 
 repositories {
     maven {
@@ -15,16 +15,15 @@ repositories {
     }
 }
 
-configurations {
-    compileClasspath.get().extendsFrom(create("shadeOnly"))
-}
+val shadeOnly by configurations.creating
 
 dependencies {
-    "compileOnly"("org.purpurmc.purpur:purpur-api:1.19.4-R0.1-SNAPSHOT")
-    "api"(project(":nuvotifier-api"))
-    "api"(project(":nuvotifier-common"))
+    compileOnly("org.purpurmc.purpur:purpur-api:1.19.4-R0.1-SNAPSHOT")
+    api(project(":nuvotifier-api"))
+    api(project(":nuvotifier-common"))
 }
 
+configurations.compileClasspath.get().extendsFrom(shadeOnly)
 
 tasks.named<Copy>("processResources") {
     val internalVersion = project.ext["internalVersion"]
@@ -42,16 +41,15 @@ tasks.named<Jar>("jar") {
     }
 }
 
-tasks.named<ShadowJar>("shadowJar") {
-    configurations = listOf(project.configurations["shadeOnly"], project.configurations["runtimeClasspath"])
-
+tasks.withType<ShadowJar>().configureEach {
+    configurations = listOf(shadeOnly, project.configurations["runtimeClasspath"])
     dependencies {
         include(dependency(":nuvotifier-api"))
         include(dependency(":nuvotifier-common"))
     }
 }
 
-tasks.named("assemble").configure {
+tasks.named("assemble") {
     dependsOn("shadowJar")
 }
 
@@ -65,3 +63,4 @@ tasks.register("runCopyJarScript", Exec::class) {
 tasks.named("build") {
     finalizedBy("runCopyJarScript")
 }
+
