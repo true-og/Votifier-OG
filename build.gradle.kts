@@ -3,11 +3,11 @@ import org.ajoberstar.grgit.Grgit
 plugins {
     id("net.kyori.blossom") version "1.2.0" apply false
     id("com.gradleup.shadow") apply false
+    id("org.ajoberstar.grgit") apply false
 }
 
-
-
-logger.lifecycle("""
+logger.lifecycle(
+    """
 *******************************************
  You are building NuVotifier!
  If you encounter trouble:
@@ -17,18 +17,17 @@ logger.lifecycle("""
 
  Output files will be in [subproject]/build/libs
 *******************************************
-""")
-
+"""
+)
 
 applyRootArtifactoryConfig()
 
 if (!project.hasProperty("gitCommitHash")) {
-    apply(plugin = "org.ajoberstar.grgit")
-    ext["gitCommitHash"] = try {
+    pluginManager.apply("org.ajoberstar.grgit")
+    extra["gitCommitHash"] = try {
         Grgit.open(mapOf("currentDir" to project.rootDir))?.head()?.abbreviatedId
     } catch (e: Exception) {
         logger.warn("Error getting commit hash", e)
-
         "no.git.id"
     }
 }

@@ -25,8 +25,12 @@ dependencies {
 
 configurations.compileClasspath.get().extendsFrom(shadeOnly)
 
+java {
+    toolchain.languageVersion.set(JavaLanguageVersion.of(17))
+}
+
 tasks.named<Copy>("processResources") {
-    val internalVersion = project.ext["internalVersion"]
+    val internalVersion = project.extra["internalVersion"]
     inputs.property("internalVersion", internalVersion)
     filesMatching("plugin.yml") {
         expand("internalVersion" to internalVersion)
@@ -63,4 +67,3 @@ tasks.register("runCopyJarScript", Exec::class) {
 tasks.named("build") {
     finalizedBy("runCopyJarScript")
 }
-
