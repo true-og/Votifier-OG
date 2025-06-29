@@ -1,5 +1,11 @@
 package com.vexsoftware.votifier.net.protocol;
 
+import com.vexsoftware.votifier.model.Vote;
+import com.vexsoftware.votifier.net.VotifierSession;
+import com.vexsoftware.votifier.platform.LoggingAdapter;
+import com.vexsoftware.votifier.platform.VotifierPlugin;
+import com.vexsoftware.votifier.platform.scheduler.VotifierScheduler;
+import com.vexsoftware.votifier.util.KeyCreator;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -15,13 +21,6 @@ import java.security.spec.X509EncodedKeySpec;
 import java.util.Base64;
 import java.util.HashMap;
 import java.util.Map;
-
-import com.vexsoftware.votifier.model.Vote;
-import com.vexsoftware.votifier.net.VotifierSession;
-import com.vexsoftware.votifier.platform.LoggingAdapter;
-import com.vexsoftware.votifier.platform.VotifierPlugin;
-import com.vexsoftware.votifier.platform.scheduler.VotifierScheduler;
-import com.vexsoftware.votifier.util.KeyCreator;
 
 public class TestVotifierPlugin implements VotifierPlugin {
     private static final byte[] PUBLIC_KEY;
@@ -55,11 +54,9 @@ public class TestVotifierPlugin implements VotifierPlugin {
     public TestVotifierPlugin() {
         try {
             KeyFactory keyFactory = KeyFactory.getInstance("RSA");
-            X509EncodedKeySpec publicKeySpec = new X509EncodedKeySpec(
-                    PUBLIC_KEY);
+            X509EncodedKeySpec publicKeySpec = new X509EncodedKeySpec(PUBLIC_KEY);
             PublicKey publicKey = keyFactory.generatePublic(publicKeySpec);
-            PKCS8EncodedKeySpec privateKeySpec = new PKCS8EncodedKeySpec(
-                    PRIVATE_KEY);
+            PKCS8EncodedKeySpec privateKeySpec = new PKCS8EncodedKeySpec(PRIVATE_KEY);
             PrivateKey privateKey = keyFactory.generatePrivate(privateKeySpec);
             keyPair = new KeyPair(publicKey, privateKey);
         } catch (Exception e) {
@@ -104,7 +101,6 @@ public class TestVotifierPlugin implements VotifierPlugin {
     }
 
     @Override
-    public void onVoteReceived(Vote vote, VotifierSession.ProtocolVersion protocolVersion, String remoteAddress) throws Exception {
-
-    }
+    public void onVoteReceived(Vote vote, VotifierSession.ProtocolVersion protocolVersion, String remoteAddress)
+            throws Exception {}
 }

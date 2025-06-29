@@ -1,8 +1,8 @@
 package com.vexsoftware.votifier.util;
 
-import javax.crypto.spec.SecretKeySpec;
 import java.nio.charset.StandardCharsets;
 import java.security.Key;
+import javax.crypto.spec.SecretKeySpec;
 
 public class KeyCreator {
     public static Key createKeyFrom(String token) {

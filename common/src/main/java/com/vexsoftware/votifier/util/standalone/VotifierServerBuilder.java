@@ -2,7 +2,6 @@ package com.vexsoftware.votifier.util.standalone;
 
 import com.vexsoftware.votifier.net.protocol.v1crypto.RSAIO;
 import com.vexsoftware.votifier.util.KeyCreator;
-
 import java.io.File;
 import java.net.InetSocketAddress;
 import java.security.Key;

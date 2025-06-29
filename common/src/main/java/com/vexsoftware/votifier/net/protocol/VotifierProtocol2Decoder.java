@@ -1,21 +1,20 @@
 package com.vexsoftware.votifier.net.protocol;
 
 import com.google.gson.JsonObject;
-import com.vexsoftware.votifier.platform.VotifierPlugin;
 import com.vexsoftware.votifier.model.Vote;
 import com.vexsoftware.votifier.net.VotifierSession;
+import com.vexsoftware.votifier.platform.VotifierPlugin;
 import com.vexsoftware.votifier.util.GsonInst;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.CorruptedFrameException;
 import io.netty.handler.codec.MessageToMessageDecoder;
-
-import javax.crypto.Mac;
-import javax.crypto.spec.SecretKeySpec;
 import java.nio.charset.StandardCharsets;
 import java.security.*;
 import java.util.Base64;
 import java.util.List;
 import java.util.UUID;
+import javax.crypto.Mac;
+import javax.crypto.spec.SecretKeySpec;
 
 /**
  * Decodes protocol 2 JSON votes.
@@ -44,7 +43,8 @@ public class VotifierProtocol2Decoder extends MessageToMessageDecoder<String> {
         if (key == null) {
             key = plugin.getTokens().get("default");
             if (key == null) {
-                throw new RuntimeException("Unknown service '" + votePayload.get("serviceName").getAsString() + "'");
+                throw new RuntimeException(
+                        "Unknown service '" + votePayload.get("serviceName").getAsString() + "'");
             }
         }
 
@@ -72,7 +72,8 @@ public class VotifierProtocol2Decoder extends MessageToMessageDecoder<String> {
         ctx.pipeline().remove(this);
     }
 
-    private boolean hmacEqual(byte[] sig, byte[] message, Key key) throws NoSuchAlgorithmException, InvalidKeyException {
+    private boolean hmacEqual(byte[] sig, byte[] message, Key key)
+            throws NoSuchAlgorithmException, InvalidKeyException {
         // See https://www.nccgroup.trust/us/about-us/newsroom-and-events/blog/2011/february/double-hmac-verification/
         // This randomizes the byte order to make timing attacks more difficult.
         Mac mac = Mac.getInstance("HmacSHA256");

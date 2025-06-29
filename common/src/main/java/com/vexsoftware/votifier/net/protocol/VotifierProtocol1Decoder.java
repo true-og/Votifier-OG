@@ -1,15 +1,14 @@
 package com.vexsoftware.votifier.net.protocol;
 
-import com.vexsoftware.votifier.platform.VotifierPlugin;
 import com.vexsoftware.votifier.model.Vote;
 import com.vexsoftware.votifier.net.protocol.v1crypto.RSA;
+import com.vexsoftware.votifier.platform.VotifierPlugin;
 import com.vexsoftware.votifier.util.QuietException;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufUtil;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.ByteToMessageDecoder;
 import io.netty.handler.codec.CorruptedFrameException;
-
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 
@@ -31,7 +30,8 @@ public class VotifierProtocol1Decoder extends ByteToMessageDecoder {
 
         if (buf.readableBytes() > 256) {
             // They sent too much data.
-            throw new QuietException("Could not decrypt data from " + ctx.channel().remoteAddress() + " as it is too long. Attack?");
+            throw new QuietException(
+                    "Could not decrypt data from " + ctx.channel().remoteAddress() + " as it is too long. Attack?");
         }
 
         byte[] block = ByteBufUtil.getBytes(buf);
@@ -43,9 +43,13 @@ public class VotifierProtocol1Decoder extends ByteToMessageDecoder {
             block = RSA.decrypt(block, plugin.getProtocolV1Key().getPrivate());
         } catch (Exception e) {
             if (plugin.isDebug()) {
-                throw new CorruptedFrameException("Could not decrypt data from " + ctx.channel().remoteAddress() + ". Make sure the public key on the list is correct.", e);
+                throw new CorruptedFrameException(
+                        "Could not decrypt data from " + ctx.channel().remoteAddress()
+                                + ". Make sure the public key on the list is correct.",
+                        e);
             } else {
-                throw new QuietException("Could not decrypt data from " + ctx.channel().remoteAddress() + ". Make sure the public key on the list is correct.");
+                throw new QuietException("Could not decrypt data from "
+                        + ctx.channel().remoteAddress() + ". Make sure the public key on the list is correct.");
             }
         }
 
@@ -53,11 +57,13 @@ public class VotifierProtocol1Decoder extends ByteToMessageDecoder {
         String all = new String(block, StandardCharsets.US_ASCII);
         String[] split = all.split("\n");
         if (split.length < 5) {
-            throw new QuietException("Not enough fields specified in vote. This is not a NuVotifier issue. Got " + split.length + " fields, but needed 5.");
+            throw new QuietException("Not enough fields specified in vote. This is not a NuVotifier issue. Got "
+                    + split.length + " fields, but needed 5.");
         }
 
         if (!split[0].equals("VOTE")) {
-            throw new QuietException("The VOTE opcode was not present. This is not a NuVotifier issue, but a bug with the server list.");
+            throw new QuietException(
+                    "The VOTE opcode was not present. This is not a NuVotifier issue, but a bug with the server list.");
         }
 
         // Create the vote.

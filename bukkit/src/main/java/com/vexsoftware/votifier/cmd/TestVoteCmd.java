@@ -25,15 +25,21 @@ public class TestVoteCmd implements CommandExecutor {
             try {
                 v = ArgsToVote.parse(args);
             } catch (IllegalArgumentException e) {
-                sender.sendMessage(Component.text("Error while parsing arguments to create test vote: " + e.getMessage()).color(NamedTextColor.DARK_RED));
-                sender.sendMessage(Component.text("Usage hint: /testvote [username] [serviceName=?] [username=?] [address=?] [localTimestamp=?] [timestamp=?]").color(NamedTextColor.GRAY));
+                sender.sendMessage(
+                        Component.text("Error while parsing arguments to create test vote: " + e.getMessage())
+                                .color(NamedTextColor.DARK_RED));
+                sender.sendMessage(Component.text(
+                                "Usage hint: /testvote [username] [serviceName=?] [username=?] [address=?] [localTimestamp=?] [timestamp=?]")
+                        .color(NamedTextColor.GRAY));
                 return true;
             }
 
             plugin.onVoteReceived(v, VotifierSession.ProtocolVersion.TEST, "localhost.test");
-            sender.sendMessage(Component.text("Test vote executed: " + v.toString()).color(NamedTextColor.GREEN));
+            sender.sendMessage(
+                    Component.text("Test vote executed: " + v.toString()).color(NamedTextColor.GREEN));
         } else {
-            sender.sendMessage(Component.text("You do not have permission to do this!").color(NamedTextColor.DARK_RED));
+            sender.sendMessage(
+                    Component.text("You do not have permission to do this!").color(NamedTextColor.DARK_RED));
         }
         return true;
     }

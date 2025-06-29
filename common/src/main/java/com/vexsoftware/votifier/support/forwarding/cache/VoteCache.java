@@ -1,7 +1,6 @@
 package com.vexsoftware.votifier.support.forwarding.cache;
 
 import com.vexsoftware.votifier.model.Vote;
-
 import java.util.Collection;
 import java.util.Collections;
 
@@ -32,8 +31,7 @@ public interface VoteCache {
      * @param v      Vote to add to the cache
      * @param player Server to add vote under
      */
-    default void addToCachePlayer(Vote v, String player) {
-    }
+    default void addToCachePlayer(Vote v, String player) {}
 
     /**
      * Evicts all votes from the vote cache and returns a collection of vote objects

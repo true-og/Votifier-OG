@@ -1,7 +1,6 @@
 package com.vexsoftware.votifier.util;
 
 import com.vexsoftware.votifier.model.Vote;
-
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -10,7 +9,7 @@ public class ArgsToVote {
 
     private static final Pattern argumentPattern = Pattern.compile("([a-zA-Z]+)=(\\S*)");
 
-    public static Vote parse(String[] arguments)  {
+    public static Vote parse(String[] arguments) {
         return parse(arguments, null);
     }
 
@@ -32,7 +31,8 @@ public class ArgsToVote {
                         break;
                     case "username":
                         if (v.length() > 16)
-                            throw new IllegalArgumentException("Illegal username - must be less than 16 characters long.");
+                            throw new IllegalArgumentException(
+                                    "Illegal username - must be less than 16 characters long.");
                         username = v;
                         break;
                     case "address":
@@ -42,8 +42,7 @@ public class ArgsToVote {
                         timestamp = v;
                         break;
                     default:
-                        if (additionalArgs != null)
-                            additionalArgs.put(key, v);
+                        if (additionalArgs != null) additionalArgs.put(key, v);
                         break;
                 }
 
@@ -54,8 +53,7 @@ public class ArgsToVote {
             }
         }
 
-        if (username == null)
-            throw new IllegalArgumentException("Username not specified!");
+        if (username == null) throw new IllegalArgumentException("Username not specified!");
 
         return new Vote(serviceName, username, address, timestamp);
     }

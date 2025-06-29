@@ -1,23 +1,22 @@
 package com.vexsoftware.votifier.net.protocol;
 
+import static org.junit.jupiter.api.Assertions.*;
+
 import com.google.gson.JsonObject;
-import com.vexsoftware.votifier.platform.VotifierPlugin;
 import com.vexsoftware.votifier.model.Vote;
 import com.vexsoftware.votifier.net.VotifierSession;
+import com.vexsoftware.votifier.platform.VotifierPlugin;
 import com.vexsoftware.votifier.util.GsonInst;
 import com.vexsoftware.votifier.util.KeyCreator;
 import io.netty.channel.embedded.EmbeddedChannel;
 import io.netty.handler.codec.CorruptedFrameException;
 import io.netty.handler.codec.DecoderException;
-import org.json.JSONObject;
-import org.junit.jupiter.api.Test;
-
-import javax.crypto.Mac;
 import java.nio.charset.StandardCharsets;
 import java.security.Key;
 import java.util.Base64;
-
-import static org.junit.jupiter.api.Assertions.*;
+import javax.crypto.Mac;
+import org.json.JSONObject;
+import org.junit.jupiter.api.Test;
 
 public class VotifierProtocol2DecoderTest {
     private static final VotifierSession SESSION = new VotifierSession();
@@ -40,7 +39,8 @@ public class VotifierProtocol2DecoderTest {
         object.put("payload", payloadEncoded);
         Mac mac = Mac.getInstance("HmacSHA256");
         mac.init(key);
-        object.put("signature",
+        object.put(
+                "signature",
                 Base64.getEncoder().encodeToString(mac.doFinal(payloadEncoded.getBytes(StandardCharsets.UTF_8))));
 
         if (expectSuccess) {
@@ -58,7 +58,10 @@ public class VotifierProtocol2DecoderTest {
 
     @Test
     public void testSuccessfulDecode() throws Exception {
-        sendVote(new Vote("Test", "test", "test", "0"), TestVotifierPlugin.getI().getTokens().get("default"), true);
+        sendVote(
+                new Vote("Test", "test", "test", "0"),
+                TestVotifierPlugin.getI().getTokens().get("default"),
+                true);
     }
 
     @Test
@@ -90,7 +93,8 @@ public class VotifierProtocol2DecoderTest {
         object.put("payload", payloadEncoded);
         Mac mac = Mac.getInstance("HmacSHA256");
         mac.init(TestVotifierPlugin.getI().getTokens().get("default"));
-        object.put("signature",
+        object.put(
+                "signature",
                 Base64.getEncoder().encodeToString(mac.doFinal(payloadEncoded.getBytes(StandardCharsets.UTF_8))));
 
         assertThrows(DecoderException.class, () -> channel.writeInbound(object.toString()));
@@ -111,8 +115,8 @@ public class VotifierProtocol2DecoderTest {
         String payloadEncoded = GsonInst.gson.toJson(payload);
         Mac mac = Mac.getInstance("HmacSHA256");
         mac.init(TestVotifierPlugin.getI().getTokens().get("default"));
-        object.put("signature",
-                Base64.getEncoder().encode(mac.doFinal(payloadEncoded.getBytes(StandardCharsets.UTF_8))));
+        object.put(
+                "signature", Base64.getEncoder().encode(mac.doFinal(payloadEncoded.getBytes(StandardCharsets.UTF_8))));
 
         assertThrows(DecoderException.class, () -> channel.writeInbound(object.toString()));
         channel.close();
@@ -124,7 +128,9 @@ public class VotifierProtocol2DecoderTest {
 
         Vote vote = new Vote("Bad Service", "test", "test", "0");
 
-        assertThrows(DecoderException.class, () -> sendVote(vote, TestVotifierPlugin.getI().getTokens().get("Test"), false));
+        assertThrows(
+                DecoderException.class,
+                () -> sendVote(vote, TestVotifierPlugin.getI().getTokens().get("Test"), false));
 
         TestVotifierPlugin.getI().restoreDefault();
     }

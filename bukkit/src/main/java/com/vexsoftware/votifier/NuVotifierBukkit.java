@@ -21,8 +21,6 @@ package com.vexsoftware.votifier;
 import com.vexsoftware.votifier.cmd.NVReloadCmd;
 import com.vexsoftware.votifier.cmd.TestVoteCmd;
 import com.vexsoftware.votifier.forwarding.BukkitPluginMessagingForwardingSink;
-import com.vexsoftware.votifier.support.forwarding.ForwardedVoteListener;
-import com.vexsoftware.votifier.support.forwarding.ForwardingVoteSink;
 import com.vexsoftware.votifier.model.Vote;
 import com.vexsoftware.votifier.model.VotifierEvent;
 import com.vexsoftware.votifier.net.VotifierServerBootstrap;
@@ -33,14 +31,11 @@ import com.vexsoftware.votifier.platform.JavaUtilLogger;
 import com.vexsoftware.votifier.platform.LoggingAdapter;
 import com.vexsoftware.votifier.platform.VotifierPlugin;
 import com.vexsoftware.votifier.platform.scheduler.VotifierScheduler;
+import com.vexsoftware.votifier.support.forwarding.ForwardedVoteListener;
+import com.vexsoftware.votifier.support.forwarding.ForwardingVoteSink;
 import com.vexsoftware.votifier.util.IOUtil;
 import com.vexsoftware.votifier.util.KeyCreator;
 import com.vexsoftware.votifier.util.TokenUtil;
-import org.bukkit.Bukkit;
-import org.bukkit.configuration.ConfigurationSection;
-import org.bukkit.configuration.file.YamlConfiguration;
-import org.bukkit.plugin.java.JavaPlugin;
-
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
@@ -52,6 +47,10 @@ import java.security.KeyPair;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Level;
+import org.bukkit.Bukkit;
+import org.bukkit.configuration.ConfigurationSection;
+import org.bukkit.configuration.file.YamlConfiguration;
+import org.bukkit.plugin.java.JavaPlugin;
 
 /**
  * The main Votifier plugin class.
@@ -114,8 +113,7 @@ public class NuVotifierBukkit extends JavaPlugin implements VoteHandler, Votifie
          * assigned to the server.
          */
         String hostAddr = Bukkit.getServer().getIp();
-        if (hostAddr == null || hostAddr.length() == 0)
-            hostAddr = "0.0.0.0";
+        if (hostAddr == null || hostAddr.length() == 0) hostAddr = "0.0.0.0";
 
         /*
          * Create configuration file if it does not exists; otherwise, load it
@@ -131,10 +129,14 @@ public class NuVotifierBukkit extends JavaPlugin implements VoteHandler, Votifie
                 }
 
                 // Load and manually replace variables in the configuration.
-                String cfgStr = new String(IOUtil.readAllBytes(getResource("bukkitConfig.yml")), StandardCharsets.UTF_8);
+                String cfgStr =
+                        new String(IOUtil.readAllBytes(getResource("bukkitConfig.yml")), StandardCharsets.UTF_8);
                 String token = TokenUtil.newToken();
                 cfgStr = cfgStr.replace("%default_token%", token).replace("%ip%", hostAddr);
-                Files.copy(new ByteArrayInputStream(cfgStr.getBytes(StandardCharsets.UTF_8)), config.toPath(), StandardCopyOption.REPLACE_EXISTING);
+                Files.copy(
+                        new ByteArrayInputStream(cfgStr.getBytes(StandardCharsets.UTF_8)),
+                        config.toPath(),
+                        StandardCopyOption.REPLACE_EXISTING);
 
                 /*
                  * Remind hosted server admins to be sure they have the right
@@ -177,8 +179,7 @@ public class NuVotifierBukkit extends JavaPlugin implements VoteHandler, Votifie
                 keyPair = RSAIO.load(rsaDirectory);
             }
         } catch (Exception ex) {
-            getLogger().log(Level.SEVERE,
-                    "Error reading configuration file or RSA tokens", ex);
+            getLogger().log(Level.SEVERE, "Error reading configuration file or RSA tokens", ex);
             return false;
         }
 
@@ -196,7 +197,9 @@ public class NuVotifierBukkit extends JavaPlugin implements VoteHandler, Votifie
         if (tokenSection != null) {
             Map<String, Object> websites = tokenSection.getValues(false);
             for (Map.Entry<String, Object> website : websites.entrySet()) {
-                tokens.put(website.getKey(), KeyCreator.createKeyFrom(website.getValue().toString()));
+                tokens.put(
+                        website.getKey(),
+                        KeyCreator.createKeyFrom(website.getValue().toString()));
                 getLogger().info("Loaded token for website: " + website.getKey());
             }
         } else {
@@ -207,8 +210,7 @@ public class NuVotifierBukkit extends JavaPlugin implements VoteHandler, Votifie
             try {
                 cfg.save(config);
             } catch (IOException e) {
-                getLogger().log(Level.SEVERE,
-                        "Error generating Votifier token", e);
+                getLogger().log(Level.SEVERE, "Error generating Votifier token", e);
                 return false;
             }
             getLogger().info("------------------------------------------------------------------------------");
@@ -222,8 +224,7 @@ public class NuVotifierBukkit extends JavaPlugin implements VoteHandler, Votifie
         // Initialize the receiver.
         final String host = cfg.getString("host", hostAddr);
         final int port = cfg.getInt("port", 8192);
-        if (!debug)
-            getLogger().info("QUIET mode enabled!");
+        if (!debug) getLogger().info("QUIET mode enabled!");
 
         if (port >= 0) {
             final boolean disablev1 = cfg.getBoolean("disable-v1-protocol");
@@ -246,19 +247,24 @@ public class NuVotifierBukkit extends JavaPlugin implements VoteHandler, Votifie
 
         ConfigurationSection forwardingConfig = cfg.getConfigurationSection("forwarding");
         if (forwardingConfig != null) {
-            String method = forwardingConfig.getString("method", "none").toLowerCase(); //Default to lower case for case-insensitive searches
+            String method = forwardingConfig
+                    .getString("method", "none")
+                    .toLowerCase(); // Default to lower case for case-insensitive searches
             if ("none".equals(method)) {
-                getLogger().info("Method none selected for vote forwarding: Votes will not be received from a forwarder.");
+                getLogger()
+                        .info("Method none selected for vote forwarding: Votes will not be received from a forwarder.");
             } else if ("pluginmessaging".equals(method)) {
                 String channel = forwardingConfig.getString("pluginMessaging.channel", "NuVotifier");
                 try {
                     forwardingMethod = new BukkitPluginMessagingForwardingSink(this, channel, this);
                     getLogger().info("Receiving votes over PluginMessaging channel '" + channel + "'.");
                 } catch (RuntimeException e) {
-                    getLogger().log(Level.SEVERE, "NuVotifier could not set up PluginMessaging for vote forwarding!", e);
+                    getLogger()
+                            .log(Level.SEVERE, "NuVotifier could not set up PluginMessaging for vote forwarding!", e);
                 }
             } else {
-                getLogger().severe("No vote forwarding method '" + method + "' known. Defaulting to noop implementation.");
+                getLogger()
+                        .severe("No vote forwarding method '" + method + "' known. Defaulting to noop implementation.");
             }
         }
         return true;
@@ -307,9 +313,16 @@ public class NuVotifierBukkit extends JavaPlugin implements VoteHandler, Votifie
         } else {
             try {
                 halt();
-                getLogger().log(Level.SEVERE, "On reload, there was a problem with the configuration. Votifier currently does nothing!");
+                getLogger()
+                        .log(
+                                Level.SEVERE,
+                                "On reload, there was a problem with the configuration. Votifier currently does nothing!");
             } catch (Exception ex) {
-                getLogger().log(Level.SEVERE, "On reload, there was a problem loading, and we could not re-halt the server. Votifier is in an unstable state!", ex);
+                getLogger()
+                        .log(
+                                Level.SEVERE,
+                                "On reload, there was a problem loading, and we could not re-halt the server. Votifier is in an unstable state!",
+                                ex);
             }
             return false;
         }
@@ -346,7 +359,9 @@ public class NuVotifierBukkit extends JavaPlugin implements VoteHandler, Votifie
     @Override
     public void onVoteReceived(final Vote vote, VotifierSession.ProtocolVersion protocolVersion, String remoteAddress) {
         if (debug) {
-            getLogger().info("Got a " + protocolVersion.humanReadable + " vote record from " + remoteAddress + " -> " + vote);
+            getLogger()
+                    .info("Got a " + protocolVersion.humanReadable + " vote record from " + remoteAddress + " -> "
+                            + vote);
         }
         fireVotifierEvent(vote);
     }
@@ -355,8 +370,11 @@ public class NuVotifierBukkit extends JavaPlugin implements VoteHandler, Votifie
     public void onError(Throwable throwable, boolean alreadyHandledVote, String remoteAddress) {
         if (debug) {
             if (alreadyHandledVote) {
-                getLogger().log(Level.WARNING, "Vote processed, however an exception " +
-                        "occurred with a vote from " + remoteAddress, throwable);
+                getLogger()
+                        .log(
+                                Level.WARNING,
+                                "Vote processed, however an exception " + "occurred with a vote from " + remoteAddress,
+                                throwable);
             } else {
                 getLogger().log(Level.WARNING, "Unable to process vote from " + remoteAddress, throwable);
             }
@@ -375,19 +393,25 @@ public class NuVotifierBukkit extends JavaPlugin implements VoteHandler, Votifie
 
     private void fireVotifierEvent(Vote vote) {
         if (VotifierEvent.getHandlerList().getRegisteredListeners().length == 0) {
-            getLogger().log(Level.SEVERE, "A vote was received, but you don't have any listeners available to listen for it.");
-            getLogger().log(Level.SEVERE, "See https://github.com/NuVotifier/NuVotifier/wiki/Setup-Guide#vote-listeners for");
+            getLogger()
+                    .log(
+                            Level.SEVERE,
+                            "A vote was received, but you don't have any listeners available to listen for it.");
+            getLogger()
+                    .log(
+                            Level.SEVERE,
+                            "See https://github.com/NuVotifier/NuVotifier/wiki/Setup-Guide#vote-listeners for");
             getLogger().log(Level.SEVERE, "a list of listeners you can configure.");
         }
 
         if (!isFolia) {
-            getServer().getScheduler().runTask(
-                    this, () -> getServer().getPluginManager().callEvent(new VotifierEvent(vote))
-            );
+            getServer()
+                    .getScheduler()
+                    .runTask(this, () -> getServer().getPluginManager().callEvent(new VotifierEvent(vote)));
         } else {
-            getServer().getScheduler().runTaskAsynchronously(
-                    this, () -> getServer().getPluginManager().callEvent(new VotifierEvent(vote, true))
-            );
+            getServer().getScheduler().runTaskAsynchronously(this, () -> getServer()
+                    .getPluginManager()
+                    .callEvent(new VotifierEvent(vote, true)));
         }
     }
 }

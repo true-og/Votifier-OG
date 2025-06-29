@@ -29,8 +29,7 @@ public class VotifierSession {
     }
 
     public void completeVote() {
-        if (hasCompletedVote)
-            throw new IllegalStateException("Protocol completed vote twice!");
+        if (hasCompletedVote) throw new IllegalStateException("Protocol completed vote twice!");
 
         hasCompletedVote = true;
     }
@@ -46,6 +45,7 @@ public class VotifierSession {
         TEST("test");
 
         public final String humanReadable;
+
         ProtocolVersion(String hr) {
             this.humanReadable = hr;
         }

@@ -21,8 +21,6 @@ import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
 import io.netty.util.concurrent.FastThreadLocalThread;
-import io.netty.util.concurrent.GlobalEventExecutor;
-
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 import java.util.List;
@@ -81,7 +79,10 @@ public class VotifierServerBootstrap {
                         channel.attr(VotifierSession.KEY).set(new VotifierSession());
                         channel.attr(VotifierPlugin.KEY).set(plugin);
                         channel.pipeline().addLast("greetingHandler", VotifierGreetingHandler.INSTANCE);
-                        channel.pipeline().addLast("protocolDifferentiator", new VotifierProtocolDifferentiator(false, !v1Disable));
+                        channel.pipeline()
+                                .addLast(
+                                        "protocolDifferentiator",
+                                        new VotifierProtocolDifferentiator(false, !v1Disable));
                         channel.pipeline().addLast("voteHandler", voteInboundHandler);
                     }
                 })
@@ -89,14 +90,16 @@ public class VotifierServerBootstrap {
                 .addListener((ChannelFutureListener) future -> {
                     if (future.isSuccess()) {
                         serverChannel = future.channel();
-                        plugin.getPluginLogger().info("Votifier enabled on socket " + serverChannel.localAddress() + ".");
+                        plugin.getPluginLogger()
+                                .info("Votifier enabled on socket " + serverChannel.localAddress() + ".");
                         error.accept(null);
                     } else {
                         SocketAddress socketAddress = future.channel().localAddress();
                         if (socketAddress == null) {
                             socketAddress = new InetSocketAddress(host, port);
                         }
-                        plugin.getPluginLogger().error("Votifier was not able to bind to " + socketAddress.toString(), future.cause());
+                        plugin.getPluginLogger()
+                                .error("Votifier was not able to bind to " + socketAddress.toString(), future.cause());
                         error.accept(future.cause());
                     }
                 });
@@ -108,8 +111,8 @@ public class VotifierServerBootstrap {
                 .group(eventLoopGroup);
     }
 
-    public ProxyForwardingVoteSource createForwardingSource(List<ProxyForwardingVoteSource.BackendServer> backendServers,
-                                                            VoteCache voteCache) {
+    public ProxyForwardingVoteSource createForwardingSource(
+            List<ProxyForwardingVoteSource.BackendServer> backendServers, VoteCache voteCache) {
         return new ProxyForwardingVoteSource(plugin, this::client, backendServers, voteCache);
     }
 

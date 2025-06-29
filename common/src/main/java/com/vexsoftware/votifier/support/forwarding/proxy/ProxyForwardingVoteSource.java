@@ -1,12 +1,12 @@
 package com.vexsoftware.votifier.support.forwarding.proxy;
 
+import com.vexsoftware.votifier.model.Vote;
 import com.vexsoftware.votifier.platform.VotifierPlugin;
 import com.vexsoftware.votifier.support.forwarding.ForwardingVoteSource;
 import com.vexsoftware.votifier.support.forwarding.cache.VoteCache;
 import com.vexsoftware.votifier.support.forwarding.proxy.client.VotifierProtocol2Encoder;
 import com.vexsoftware.votifier.support.forwarding.proxy.client.VotifierProtocol2HandshakeHandler;
 import com.vexsoftware.votifier.support.forwarding.proxy.client.VotifierResponseHandler;
-import com.vexsoftware.votifier.model.Vote;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelInitializer;
@@ -15,7 +15,6 @@ import io.netty.handler.codec.DelimiterBasedFrameDecoder;
 import io.netty.handler.codec.Delimiters;
 import io.netty.handler.codec.string.StringDecoder;
 import io.netty.handler.timeout.ReadTimeoutHandler;
-
 import java.net.InetSocketAddress;
 import java.nio.charset.StandardCharsets;
 import java.security.Key;
@@ -32,7 +31,11 @@ public class ProxyForwardingVoteSource implements ForwardingVoteSource {
 
     private static final StringDecoder STRING_DECODER = new StringDecoder(StandardCharsets.US_ASCII);
 
-    public ProxyForwardingVoteSource(VotifierPlugin plugin, Supplier<Bootstrap> nettyBootstrap, List<BackendServer> backendServers, VoteCache voteCache) {
+    public ProxyForwardingVoteSource(
+            VotifierPlugin plugin,
+            Supplier<Bootstrap> nettyBootstrap,
+            List<BackendServer> backendServers,
+            VoteCache voteCache) {
         this.plugin = plugin;
         this.nettyBootstrap = nettyBootstrap;
         this.backendServers = backendServers;
@@ -52,27 +55,35 @@ public class ProxyForwardingVoteSource implements ForwardingVoteSource {
     }
 
     private void forwardVote(final BackendServer server, final Vote v, final int tries) {
-        nettyBootstrap.get()
+        nettyBootstrap
+                .get()
                 .handler(new ChannelInitializer<SocketChannel>() {
                     @Override
                     protected void initChannel(SocketChannel channel) {
-                        channel.pipeline().addLast(new DelimiterBasedFrameDecoder(256, true, Delimiters.lineDelimiter()));
+                        channel.pipeline()
+                                .addLast(new DelimiterBasedFrameDecoder(256, true, Delimiters.lineDelimiter()));
                         channel.pipeline().addLast(new ReadTimeoutHandler(5, TimeUnit.SECONDS));
                         channel.pipeline().addLast(STRING_DECODER);
                         channel.pipeline().addLast(new VotifierProtocol2Encoder(server.key));
-                        channel.pipeline().addLast(new VotifierProtocol2HandshakeHandler(v, new VotifierResponseHandler() {
-                            @Override
-                            public void onSuccess() {
-                                if (plugin.isDebug()) {
-                                    plugin.getPluginLogger().info("Successfully forwarded vote " + v + " to " + server.address + ".");
-                                }
-                            }
+                        channel.pipeline()
+                                .addLast(new VotifierProtocol2HandshakeHandler(
+                                        v,
+                                        new VotifierResponseHandler() {
+                                            @Override
+                                            public void onSuccess() {
+                                                if (plugin.isDebug()) {
+                                                    plugin.getPluginLogger()
+                                                            .info("Successfully forwarded vote " + v + " to "
+                                                                    + server.address + ".");
+                                                }
+                                            }
 
-                            @Override
-                            public void onFailure(Throwable error) {
-                                handleFailure(server, v, error, tries);
-                            }
-                        }, plugin));
+                                            @Override
+                                            public void onFailure(Throwable error) {
+                                                handleFailure(server, v, error, tries);
+                                            }
+                                        },
+                                        plugin));
                     }
                 })
                 .connect(server.address)
@@ -110,9 +121,7 @@ public class ProxyForwardingVoteSource implements ForwardingVoteSource {
     }
 
     @Override
-    public void halt() {
-
-    }
+    public void halt() {}
 
     public static class BackendServer {
         private final String name;

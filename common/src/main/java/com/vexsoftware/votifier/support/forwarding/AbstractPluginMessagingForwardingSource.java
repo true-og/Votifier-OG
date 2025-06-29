@@ -5,7 +5,6 @@ import com.vexsoftware.votifier.platform.BackendServer;
 import com.vexsoftware.votifier.platform.ProxyVotifierPlugin;
 import com.vexsoftware.votifier.support.forwarding.cache.FileVoteCache;
 import com.vexsoftware.votifier.support.forwarding.cache.VoteCache;
-
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
@@ -16,7 +15,8 @@ import java.util.function.Consumer;
 
 public abstract class AbstractPluginMessagingForwardingSource implements ForwardingVoteSource {
 
-    public AbstractPluginMessagingForwardingSource(String channel, ServerFilter serverFilter, ProxyVotifierPlugin plugin, VoteCache cache, int dumpRate) {
+    public AbstractPluginMessagingForwardingSource(
+            String channel, ServerFilter serverFilter, ProxyVotifierPlugin plugin, VoteCache cache, int dumpRate) {
         this.channel = channel;
         this.plugin = plugin;
         this.cache = cache;
@@ -24,7 +24,8 @@ public abstract class AbstractPluginMessagingForwardingSource implements Forward
         this.dumpRate = dumpRate;
     }
 
-    protected AbstractPluginMessagingForwardingSource(String channel, ProxyVotifierPlugin plugin, VoteCache voteCache, int dumpRate) {
+    protected AbstractPluginMessagingForwardingSource(
+            String channel, ProxyVotifierPlugin plugin, VoteCache voteCache, int dumpRate) {
         this(channel, null, plugin, voteCache, dumpRate);
     }
 
@@ -80,18 +81,17 @@ public abstract class AbstractPluginMessagingForwardingSource implements Forward
         if (cache == null) return;
         final Collection<Vote> cachedVotes = cache.evict(server.getName());
         dumpVotesToServer(cachedVotes, server, "server '" + server + "'", failedVotes -> {
-            for (Vote v : failedVotes)
-                cache.addToCache(v, server.getName());
+            for (Vote v : failedVotes) cache.addToCache(v, server.getName());
         });
     }
 
     protected void attemptToAddToCache(Vote v, String server) {
         if (cache != null) {
             cache.addToCache(v, server);
-            if (plugin.isDebug())
-                plugin.getPluginLogger().info("Added to forwarding cache: " + v + " -> " + server);
+            if (plugin.isDebug()) plugin.getPluginLogger().info("Added to forwarding cache: " + v + " -> " + server);
         } else if (plugin.isDebug())
-            plugin.getPluginLogger().error("Could not immediately send vote to backend, vote lost! " + v + " -> " + server);
+            plugin.getPluginLogger()
+                    .error("Could not immediately send vote to backend, vote lost! " + v + " -> " + server);
     }
 
     protected void attemptToAddToPlayerCache(Vote v, String player) {
@@ -100,48 +100,63 @@ public abstract class AbstractPluginMessagingForwardingSource implements Forward
             if (plugin.isDebug())
                 plugin.getPluginLogger().info("Added to forwarding cache: " + v + " -> (player) " + player);
         } else if (plugin.isDebug())
-            plugin.getPluginLogger().error("Could not immediately send vote to backend, vote lost! " + v + " -> (player) " + player);
-
+            plugin.getPluginLogger()
+                    .error("Could not immediately send vote to backend, vote lost! " + v + " -> (player) " + player);
     }
 
     // returns a collection of failed votes
-    private void dumpVotesToServer(Collection<Vote> cachedVotes, BackendServer target, String identifier, Consumer<Collection<Vote>> cb) {
+    private void dumpVotesToServer(
+            Collection<Vote> cachedVotes, BackendServer target, String identifier, Consumer<Collection<Vote>> cb) {
         dumpVotesToServer(cachedVotes, target, identifier, 0, cb);
     }
-    private void dumpVotesToServer(Collection<Vote> cachedVotes, BackendServer target, String identifier, int evictedAlready, Consumer<Collection<Vote>> cb) {
+
+    private void dumpVotesToServer(
+            Collection<Vote> cachedVotes,
+            BackendServer target,
+            String identifier,
+            int evictedAlready,
+            Consumer<Collection<Vote>> cb) {
         if (!cachedVotes.isEmpty()) {
-            plugin.getScheduler().delayedOnPool(() -> {
-                int evicted = 0;
-                Iterator<Vote> vi = cachedVotes.iterator();
-                Collection<Vote> chunk = new ArrayList<>(dumpRate);
-                while (vi.hasNext() && evicted < dumpRate) {
-                    chunk.add(vi.next());
-                    vi.remove();
-                }
+            plugin.getScheduler()
+                    .delayedOnPool(
+                            () -> {
+                                int evicted = 0;
+                                Iterator<Vote> vi = cachedVotes.iterator();
+                                Collection<Vote> chunk = new ArrayList<>(dumpRate);
+                                while (vi.hasNext() && evicted < dumpRate) {
+                                    chunk.add(vi.next());
+                                    vi.remove();
+                                }
 
-                if (forwardSpecific(target, chunk)) {
-                    evicted += chunk.size();
+                                if (forwardSpecific(target, chunk)) {
+                                    evicted += chunk.size();
 
-                    if (evicted >= dumpRate && !cachedVotes.isEmpty()) {
-                        // if we evicted everything we could but still need to evict more
-                        dumpVotesToServer(cachedVotes, target, identifier, evictedAlready + evicted, cb);
-                        return;
-                    }
-                } else {
-                    // so since our forwarding failed, break like we are done
-                    cachedVotes.addAll(chunk);
-                }
+                                    if (evicted >= dumpRate && !cachedVotes.isEmpty()) {
+                                        // if we evicted everything we could but still need to evict more
+                                        dumpVotesToServer(
+                                                cachedVotes, target, identifier, evictedAlready + evicted, cb);
+                                        return;
+                                    }
+                                } else {
+                                    // so since our forwarding failed, break like we are done
+                                    cachedVotes.addAll(chunk);
+                                }
 
-                if (plugin.isDebug()) {
-                    plugin.getPluginLogger().info("Successfully evicted " + (evictedAlready + evicted) + " votes to " + identifier + ".");
-                    if (!cachedVotes.isEmpty()) {
-                        plugin.getPluginLogger().info("Held " + cachedVotes.size() + " votes for " + identifier + ".");
-                    }
-                }
+                                if (plugin.isDebug()) {
+                                    plugin.getPluginLogger()
+                                            .info("Successfully evicted " + (evictedAlready + evicted) + " votes to "
+                                                    + identifier + ".");
+                                    if (!cachedVotes.isEmpty()) {
+                                        plugin.getPluginLogger()
+                                                .info("Held " + cachedVotes.size() + " votes for " + identifier + ".");
+                                    }
+                                }
 
-                // cachedVotes contains any votes which have yet to be evicted
-                cb.accept(cachedVotes);
-            }, evictedAlready == 0 ? 3 : 1, TimeUnit.SECONDS);
+                                // cachedVotes contains any votes which have yet to be evicted
+                                cb.accept(cachedVotes);
+                            },
+                            evictedAlready == 0 ? 3 : 1,
+                            TimeUnit.SECONDS);
         } else {
             cb.accept(cachedVotes);
         }
@@ -153,8 +168,7 @@ public abstract class AbstractPluginMessagingForwardingSource implements Forward
 
         final Collection<Vote> cachedVotes = cache.evictPlayer(playerName);
         dumpVotesToServer(cachedVotes, server, "player '" + playerName + "'", failedVotes -> {
-            for (Vote v : failedVotes)
-                cache.addToCachePlayer(v, playerName);
+            for (Vote v : failedVotes) cache.addToCachePlayer(v, playerName);
         });
     }
 }

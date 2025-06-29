@@ -8,7 +8,8 @@ plugins {
 
 applyPlatformAndCoreConfiguration()
 
-val shadeOnly = configurations.findByName("shadeOnly") ?: configurations.create("shadeOnly")
+val shadeOnly = configurations.maybeCreate("shadeOnly")
+
 configurations.compileClasspath.get().extendsFrom(shadeOnly)
 
 dependencies {
@@ -17,14 +18,11 @@ dependencies {
     implementation(project(":nuvotifier-bukkit"))
 }
 
-tasks.named<Jar>("jar") {
-    manifest {
-        attributes("Implementation-Version" to project.version)
-    }
-}
+tasks.named<Jar>("jar") { manifest { attributes("Implementation-Version" to project.version) } }
 
 tasks.withType<ShadowJar>().configureEach {
     configurations = listOf(shadeOnly, project.configurations["runtimeClasspath"])
+    dependsOn(":nuvotifier-bukkit:shadowJar")
     dependencies {
         include(dependency(":nuvotifier-api"))
         include(dependency(":nuvotifier-common"))
@@ -39,9 +37,8 @@ tasks.withType<ShadowJar>().configureEach {
     exclude("org/intellij/**")
     exclude("org/jetbrains/**")
     exclude("**/module-info.class")
+    archiveClassifier.set("")
+    minimize()
 }
 
-tasks.named("assemble") {
-    dependsOn("shadowJar")
-}
-
+tasks.named("assemble") { dependsOn("shadowJar") }

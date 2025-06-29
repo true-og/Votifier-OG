@@ -20,7 +20,6 @@ package com.vexsoftware.votifier.model;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-
 import java.util.Arrays;
 import java.util.Base64;
 
@@ -54,8 +53,7 @@ public class Vote {
     private byte[] additionalData;
 
     @Deprecated
-    public Vote() {
-    }
+    public Vote() {}
 
     public Vote(String serviceName, String username, String address, String timeStamp) {
         this.serviceName = serviceName;
@@ -74,8 +72,14 @@ public class Vote {
     }
 
     public Vote(Vote vote) {
-        this(vote.getServiceName(), vote.getUsername(), vote.getAddress(), vote.getTimeStamp(),
-                vote.getAdditionalData() == null ? null : vote.getAdditionalData().clone());
+        this(
+                vote.getServiceName(),
+                vote.getUsername(),
+                vote.getAddress(),
+                vote.getTimeStamp(),
+                vote.getAdditionalData() == null
+                        ? null
+                        : vote.getAdditionalData().clone());
     }
 
     private static String getTimestamp(JsonElement object) {
@@ -87,21 +91,21 @@ public class Vote {
     }
 
     public Vote(JsonObject jsonObject) {
-        this(jsonObject.get("serviceName").getAsString(),
+        this(
+                jsonObject.get("serviceName").getAsString(),
                 jsonObject.get("username").getAsString(),
                 jsonObject.get("address").getAsString(),
                 getTimestamp(jsonObject.get("timestamp")));
         if (jsonObject.has("additionalData"))
-            additionalData = Base64.getDecoder().decode(jsonObject.get("additionalData").getAsString());
+            additionalData =
+                    Base64.getDecoder().decode(jsonObject.get("additionalData").getAsString());
     }
 
     @Override
     public String toString() {
         String data;
-        if (additionalData == null)
-            data = "null";
-        else
-            data = Base64.getEncoder().encodeToString(additionalData);
+        if (additionalData == null) data = "null";
+        else data = Base64.getEncoder().encodeToString(additionalData);
 
         return "Vote (from:" + serviceName + " username:" + username
                 + " address:" + address + " timeStamp:" + timeStamp

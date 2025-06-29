@@ -5,11 +5,10 @@ import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.MessageToByteEncoder;
-
-import javax.crypto.Mac;
 import java.nio.charset.StandardCharsets;
 import java.security.Key;
 import java.util.Base64;
+import javax.crypto.Mac;
 
 public class VotifierProtocol2Encoder extends MessageToByteEncoder<VoteRequest> {
     private static final short MAGIC = 0x733A;

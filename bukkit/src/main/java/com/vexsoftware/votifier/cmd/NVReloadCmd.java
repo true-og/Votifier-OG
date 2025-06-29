@@ -20,12 +20,16 @@ public class NVReloadCmd implements CommandExecutor {
         if (sender.hasPermission("nuvotifier.reload")) {
             sender.sendMessage(Component.text("Reloading NuVotifier...").color(NamedTextColor.GRAY));
             if (plugin.reload()) {
-                sender.sendMessage(Component.text("NuVotifier has been reloaded!").color(NamedTextColor.DARK_GREEN));
+                sender.sendMessage(
+                        Component.text("NuVotifier has been reloaded!").color(NamedTextColor.DARK_GREEN));
             } else {
-                sender.sendMessage(Component.text("Looks like there was a problem reloading NuVotifier, check the console!").color(NamedTextColor.DARK_RED));
+                sender.sendMessage(
+                        Component.text("Looks like there was a problem reloading NuVotifier, check the console!")
+                                .color(NamedTextColor.DARK_RED));
             }
         } else {
-            sender.sendMessage(Component.text("You do not have permission to do this!").color(NamedTextColor.DARK_RED));
+            sender.sendMessage(
+                    Component.text("You do not have permission to do this!").color(NamedTextColor.DARK_RED));
         }
         return true;
     }

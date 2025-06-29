@@ -2,19 +2,19 @@ package com.vexsoftware.votifier.forwarding;
 
 import com.vexsoftware.votifier.support.forwarding.AbstractPluginMessagingForwardingSink;
 import com.vexsoftware.votifier.support.forwarding.ForwardedVoteListener;
+import java.util.Objects;
+import java.util.logging.Level;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.messaging.PluginMessageListener;
 
-import java.util.Objects;
-import java.util.logging.Level;
-
-public class BukkitPluginMessagingForwardingSink extends AbstractPluginMessagingForwardingSink implements PluginMessageListener {
+public class BukkitPluginMessagingForwardingSink extends AbstractPluginMessagingForwardingSink
+        implements PluginMessageListener {
 
     public BukkitPluginMessagingForwardingSink(Plugin p, String channel, ForwardedVoteListener listener) {
         super(listener);
-        Objects.requireNonNull(channel, "Channel cannot be null.");  // Replaced Validate.notNull
+        Objects.requireNonNull(channel, "Channel cannot be null."); // Replaced Validate.notNull
         this.channel = channel;
         Bukkit.getMessenger().registerIncomingPluginChannel(p, channel, this);
         this.p = p;

@@ -9,7 +9,6 @@ import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
-
 import java.util.concurrent.atomic.AtomicLong;
 
 @ChannelHandler.Sharable
@@ -28,7 +27,8 @@ public class VoteInboundHandler extends SimpleChannelInboundHandler<Vote> {
     protected void channelRead0(ChannelHandlerContext ctx, final Vote vote) throws Exception {
         VotifierSession session = ctx.channel().attr(VotifierSession.KEY).get();
 
-        handler.onVoteReceived(vote, session.getVersion(), ctx.channel().remoteAddress().toString());
+        handler.onVoteReceived(
+                vote, session.getVersion(), ctx.channel().remoteAddress().toString());
         session.completeVote();
 
         if (session.getVersion() == VotifierSession.ProtocolVersion.ONE) {

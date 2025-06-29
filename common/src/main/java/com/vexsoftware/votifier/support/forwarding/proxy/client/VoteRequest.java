@@ -21,9 +21,6 @@ public class VoteRequest {
 
     @Override
     public String toString() {
-        return "VoteRequest{" +
-                "challenge='" + challenge + '\'' +
-                ", vote=" + vote +
-                '}';
+        return "VoteRequest{" + "challenge='" + challenge + '\'' + ", vote=" + vote + '}';
     }
 }

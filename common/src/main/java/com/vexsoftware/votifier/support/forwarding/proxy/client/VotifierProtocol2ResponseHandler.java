@@ -19,8 +19,9 @@ public class VotifierProtocol2ResponseHandler extends SimpleChannelInboundHandle
         if (status.equals("ok")) {
             responseHandler.onSuccess();
         } else {
-            responseHandler.onFailure(new Exception("Remote server error: " + object.get("cause").getAsString() +
-                    ": " + object.get("error").getAsString()));
+            responseHandler.onFailure(
+                    new Exception("Remote server error: " + object.get("cause").getAsString() + ": "
+                            + object.get("error").getAsString()));
         }
         ctx.close();
     }

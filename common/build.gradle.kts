@@ -1,8 +1,7 @@
-plugins {
-    `java-library`
-}
+plugins { `java-library` }
 
 applyPlatformAndCoreConfiguration()
+
 applyCommonArtifactoryConfig()
 
 dependencies {
@@ -15,6 +14,4 @@ dependencies {
     testImplementation("junit:junit:4.13.2")
 }
 
-tasks.test {
-    useJUnit()
-}
+tasks.test { useJUnit() }

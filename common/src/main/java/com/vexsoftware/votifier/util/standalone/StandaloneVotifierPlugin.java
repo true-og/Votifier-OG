@@ -8,7 +8,6 @@ import com.vexsoftware.votifier.platform.LoggingAdapter;
 import com.vexsoftware.votifier.platform.VotifierPlugin;
 import com.vexsoftware.votifier.platform.scheduler.ScheduledExecutorServiceVotifierScheduler;
 import com.vexsoftware.votifier.platform.scheduler.VotifierScheduler;
-
 import java.net.InetSocketAddress;
 import java.security.Key;
 import java.security.KeyPair;
@@ -27,7 +26,8 @@ public class StandaloneVotifierPlugin implements VotifierPlugin {
     private final VotifierScheduler scheduler;
     private VotifierServerBootstrap bootstrap;
 
-    public StandaloneVotifierPlugin(Map<String, Key> tokens, VoteReceiver receiver, KeyPair v1Key, InetSocketAddress bind) {
+    public StandaloneVotifierPlugin(
+            Map<String, Key> tokens, VoteReceiver receiver, KeyPair v1Key, InetSocketAddress bind) {
         this.receiver = receiver;
         this.bind = bind;
         this.tokens = Collections.unmodifiableMap(new HashMap<>(tokens));
@@ -68,7 +68,8 @@ public class StandaloneVotifierPlugin implements VotifierPlugin {
     }
 
     @Override
-    public void onVoteReceived(Vote vote, VotifierSession.ProtocolVersion protocolVersion, String remoteAddress) throws Exception {
+    public void onVoteReceived(Vote vote, VotifierSession.ProtocolVersion protocolVersion, String remoteAddress)
+            throws Exception {
         receiver.onVote(vote);
     }
 

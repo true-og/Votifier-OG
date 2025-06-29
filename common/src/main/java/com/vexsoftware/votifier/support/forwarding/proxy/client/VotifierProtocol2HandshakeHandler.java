@@ -1,7 +1,7 @@
 package com.vexsoftware.votifier.support.forwarding.proxy.client;
 
-import com.vexsoftware.votifier.platform.VotifierPlugin;
 import com.vexsoftware.votifier.model.Vote;
+import com.vexsoftware.votifier.platform.VotifierPlugin;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.handler.codec.CorruptedFrameException;
@@ -11,7 +11,8 @@ public class VotifierProtocol2HandshakeHandler extends SimpleChannelInboundHandl
     private final VotifierResponseHandler responseHandler;
     private final VotifierPlugin nuVotifier;
 
-    public VotifierProtocol2HandshakeHandler(Vote toSend, VotifierResponseHandler responseHandler, VotifierPlugin nuVotifier) {
+    public VotifierProtocol2HandshakeHandler(
+            Vote toSend, VotifierResponseHandler responseHandler, VotifierPlugin nuVotifier) {
         this.toSend = toSend;
         this.responseHandler = responseHandler;
         this.nuVotifier = nuVotifier;
@@ -32,7 +33,6 @@ public class VotifierProtocol2HandshakeHandler extends SimpleChannelInboundHandl
         ctx.pipeline().addLast(new VotifierProtocol2ResponseHandler(responseHandler));
         ctx.pipeline().remove(this);
     }
-
 
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {

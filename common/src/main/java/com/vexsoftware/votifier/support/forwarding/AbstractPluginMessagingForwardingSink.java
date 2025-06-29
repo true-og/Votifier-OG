@@ -5,7 +5,6 @@ import com.google.gson.JsonPrimitive;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonToken;
 import com.vexsoftware.votifier.model.Vote;
-
 import java.io.CharArrayReader;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -29,10 +28,8 @@ public abstract class AbstractPluginMessagingForwardingSink implements Forwardin
 
                 while (r.hasNext()) {
                     String name = r.nextName();
-                    if (r.peek() == JsonToken.NUMBER)
-                        o.add(name, new JsonPrimitive(r.nextLong()));
-                    else
-                        o.add(name, new JsonPrimitive(r.nextString()));
+                    if (r.peek() == JsonToken.NUMBER) o.add(name, new JsonPrimitive(r.nextLong()));
+                    else o.add(name, new JsonPrimitive(r.nextString()));
                 }
                 r.endObject();
 

@@ -6,6 +6,7 @@ plugins {
 }
 
 applyPlatformAndCoreConfiguration()
+
 applyCommonArtifactoryConfig()
 
 repositories {
@@ -17,33 +18,25 @@ repositories {
 
 val shadeOnly by configurations.creating
 
+configurations.compileClasspath.get().extendsFrom(shadeOnly)
+
 dependencies {
     compileOnly("org.purpurmc.purpur:purpur-api:1.19.4-R0.1-SNAPSHOT")
     api(project(":nuvotifier-api"))
     api(project(":nuvotifier-common"))
 }
 
-configurations.compileClasspath.get().extendsFrom(shadeOnly)
-
-java {
-    toolchain.languageVersion.set(JavaLanguageVersion.of(17))
-}
+java { toolchain.languageVersion.set(JavaLanguageVersion.of(17)) }
 
 tasks.named<Copy>("processResources") {
+    duplicatesStrategy = DuplicatesStrategy.INCLUDE
     val internalVersion = project.extra["internalVersion"]
     inputs.property("internalVersion", internalVersion)
-    filesMatching("plugin.yml") {
-        expand("internalVersion" to internalVersion)
-    }
+    filesMatching("plugin.yml") { expand("internalVersion" to internalVersion) }
+    from(rootProject.file("LICENSE")) { into("/") }
 }
 
-tasks.named<Jar>("jar") {
-    val projectVersion = project.version
-    inputs.property("projectVersion", projectVersion)
-    manifest {
-        attributes("Implementation-Version" to projectVersion)
-    }
-}
+tasks.named<Jar>("jar") { manifest { attributes("Implementation-Version" to project.version) } }
 
 tasks.withType<ShadowJar>().configureEach {
     configurations = listOf(shadeOnly, project.configurations["runtimeClasspath"])
@@ -51,19 +44,18 @@ tasks.withType<ShadowJar>().configureEach {
         include(dependency(":nuvotifier-api"))
         include(dependency(":nuvotifier-common"))
     }
+    exclude("LICENSE*")
+    archiveClassifier.set("")
+    minimize()
 }
 
-tasks.named("assemble") {
-    dependsOn("shadowJar")
-}
+tasks.named("assemble") { dependsOn("shadowJar") }
 
-tasks.register("runCopyJarScript", Exec::class) {
+tasks.register<Exec>("runCopyJarScript") {
     group = "build"
     description = "Runs the copyjar.sh script after build completion."
     workingDir(rootDir)
     commandLine("sh", "copyjar.sh", project.version.toString())
 }
 
-tasks.named("build") {
-    finalizedBy("runCopyJarScript")
-}
+tasks.named("build") { finalizedBy("runCopyJarScript") }

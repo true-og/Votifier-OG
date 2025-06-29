@@ -1,11 +1,9 @@
 package com.vexsoftware.votifier;
 
-import java.util.concurrent.TimeUnit;
-
-import org.bukkit.scheduler.BukkitTask;
-
 import com.vexsoftware.votifier.platform.scheduler.ScheduledVotifierTask;
 import com.vexsoftware.votifier.platform.scheduler.VotifierScheduler;
+import java.util.concurrent.TimeUnit;
+import org.bukkit.scheduler.BukkitTask;
 
 class BukkitScheduler implements VotifierScheduler {
     private final NuVotifierBukkit plugin;
@@ -20,12 +18,15 @@ class BukkitScheduler implements VotifierScheduler {
 
     @Override
     public ScheduledVotifierTask delayedOnPool(Runnable runnable, int delay, TimeUnit unit) {
-        return new BukkitTaskWrapper(plugin.getServer().getScheduler().runTaskLaterAsynchronously(plugin, runnable, toTicks(delay, unit)));
+        return new BukkitTaskWrapper(
+                plugin.getServer().getScheduler().runTaskLaterAsynchronously(plugin, runnable, toTicks(delay, unit)));
     }
 
     @Override
     public ScheduledVotifierTask repeatOnPool(Runnable runnable, int delay, int repeat, TimeUnit unit) {
-        return new BukkitTaskWrapper(plugin.getServer().getScheduler().runTaskTimerAsynchronously(plugin, runnable, toTicks(delay, unit), toTicks(repeat, unit)));
+        return new BukkitTaskWrapper(plugin.getServer()
+                .getScheduler()
+                .runTaskTimerAsynchronously(plugin, runnable, toTicks(delay, unit), toTicks(repeat, unit)));
     }
 
     private static class BukkitTaskWrapper implements ScheduledVotifierTask {

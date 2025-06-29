@@ -8,7 +8,6 @@ import io.netty.handler.codec.ByteToMessageDecoder;
 import io.netty.handler.codec.LengthFieldBasedFrameDecoder;
 import io.netty.handler.codec.string.StringDecoder;
 import io.netty.handler.codec.string.StringEncoder;
-
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 
@@ -16,7 +15,8 @@ import java.util.List;
  * Attempts to determine if original protocol or protocol v2 is being used.
  */
 public class VotifierProtocolDifferentiator extends ByteToMessageDecoder {
-    private static final QuietException V2_ONLY = new QuietException("This server only accepts well-formed Votifier v2 packets.");
+    private static final QuietException V2_ONLY =
+            new QuietException("This server only accepts well-formed Votifier v2 packets.");
 
     private static final short PROTOCOL_2_MAGIC = 0x733A;
     private final boolean testMode;
@@ -45,10 +45,23 @@ public class VotifierProtocolDifferentiator extends ByteToMessageDecoder {
             session.setVersion(VotifierSession.ProtocolVersion.TWO);
 
             if (!testMode) {
-                ctx.pipeline().addAfter("protocolDifferentiator", "protocol2LengthDecoder", new LengthFieldBasedFrameDecoder(1024, 2, 2, 0, 4));
-                ctx.pipeline().addAfter("protocol2LengthDecoder", "protocol2StringDecoder", new StringDecoder(StandardCharsets.UTF_8));
-                ctx.pipeline().addAfter("protocol2StringDecoder", "protocol2VoteDecoder", new VotifierProtocol2Decoder());
-                ctx.pipeline().addAfter("protocol2VoteDecoder", "protocol2StringEncoder", new StringEncoder(StandardCharsets.UTF_8));
+                ctx.pipeline()
+                        .addAfter(
+                                "protocolDifferentiator",
+                                "protocol2LengthDecoder",
+                                new LengthFieldBasedFrameDecoder(1024, 2, 2, 0, 4));
+                ctx.pipeline()
+                        .addAfter(
+                                "protocol2LengthDecoder",
+                                "protocol2StringDecoder",
+                                new StringDecoder(StandardCharsets.UTF_8));
+                ctx.pipeline()
+                        .addAfter("protocol2StringDecoder", "protocol2VoteDecoder", new VotifierProtocol2Decoder());
+                ctx.pipeline()
+                        .addAfter(
+                                "protocol2VoteDecoder",
+                                "protocol2StringEncoder",
+                                new StringEncoder(StandardCharsets.UTF_8));
                 ctx.pipeline().remove(this);
             }
         } else {

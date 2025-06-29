@@ -7,7 +7,6 @@ import com.vexsoftware.votifier.platform.LoggingAdapter;
 import com.vexsoftware.votifier.platform.VotifierPlugin;
 import com.vexsoftware.votifier.platform.scheduler.ScheduledVotifierTask;
 import com.vexsoftware.votifier.util.GsonInst;
-
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -28,13 +27,18 @@ public class FileVoteCache extends MemoryVoteCache {
 
         load();
 
-        saveTask = plugin.getScheduler().repeatOnPool(() -> {
-            try {
-                save();
-            } catch (IOException e) {
-                l.error("Unable to save cached votes, votes will be lost if you restart.", e);
-            }
-        }, 3, 3, TimeUnit.MINUTES);
+        saveTask = plugin.getScheduler()
+                .repeatOnPool(
+                        () -> {
+                            try {
+                                save();
+                            } catch (IOException e) {
+                                l.error("Unable to save cached votes, votes will be lost if you restart.", e);
+                            }
+                        },
+                        3,
+                        3,
+                        TimeUnit.MINUTES);
     }
 
     private static Set<String> keySet(JsonObject object) {
@@ -71,7 +75,8 @@ public class FileVoteCache extends MemoryVoteCache {
         }
 
         if (object.get("version").getAsInt() != 2)
-            throw new IllegalStateException("Could not read cache file! Unknown version '" + object.get("version").getAsInt() + "' read.");
+            throw new IllegalStateException("Could not read cache file! Unknown version '"
+                    + object.get("version").getAsInt() + "' read.");
 
         JsonObject players = object.getAsJsonObject("players");
         JsonObject servers = object.getAsJsonObject("servers");
@@ -88,8 +93,7 @@ public class FileVoteCache extends MemoryVoteCache {
             File replacementFile;
             for (int i = 0; ; i++) {
                 replacementFile = new File(cacheFile.getParentFile(), cacheFile.getName() + ".bak." + i);
-                if (!replacementFile.exists())
-                    break;
+                if (!replacementFile.exists()) break;
             }
 
             if (!cacheFile.renameTo(replacementFile)) {
@@ -107,10 +111,8 @@ public class FileVoteCache extends MemoryVoteCache {
         for (int i = 0; i < voteArray.size(); i++) {
             JsonObject voteObject = voteArray.get(i).getAsJsonObject();
             VoteWithRecordedTimestamp v = new VoteWithRecordedTimestamp(voteObject);
-            if (hasTimedOut(v))
-                l.warn("Purging out of date vote.", v);
-            else
-                votes.add(v);
+            if (hasTimedOut(v)) l.warn("Purging out of date vote.", v);
+            else votes.add(v);
         }
         return votes;
     }
@@ -135,7 +137,8 @@ public class FileVoteCache extends MemoryVoteCache {
     public JsonObject serializeMap(Map<String, Collection<VoteWithRecordedTimestamp>> map) {
         JsonObject o = new JsonObject();
 
-        Iterator<Map.Entry<String, Collection<VoteWithRecordedTimestamp>>> entryItr = map.entrySet().iterator();
+        Iterator<Map.Entry<String, Collection<VoteWithRecordedTimestamp>>> entryItr =
+                map.entrySet().iterator();
         while (entryItr.hasNext()) {
             Map.Entry<String, Collection<VoteWithRecordedTimestamp>> entry = entryItr.next();
             JsonArray array = new JsonArray();
@@ -150,17 +153,14 @@ public class FileVoteCache extends MemoryVoteCache {
                 } else {
                     array.add(vote.serialize());
                 }
-
             }
 
             // if, during our iteration, we TTL invalidated all of the votes
-            if (entry.getValue().isEmpty())
-                entryItr.remove();
+            if (entry.getValue().isEmpty()) entryItr.remove();
             o.add(entry.getKey(), array);
         }
         return o;
     }
-
 
     public void halt() throws IOException {
         saveTask.cancel();

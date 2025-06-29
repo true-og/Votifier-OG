@@ -11,3 +11,4 @@ project(":nuvotifier-bukkit").projectDir = file("bukkit")
 
 include("nuvotifier-universal")
 project(":nuvotifier-universal").projectDir = file("universal")
+
