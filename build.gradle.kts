@@ -1,11 +1,11 @@
 import org.ajoberstar.grgit.Grgit
 
 plugins {
-    id("java") // Tell gradle this is a java project.
-    id("java-library") // Import helper for source-based libraries.
-    id("com.diffplug.spotless") version "7.0.4" // Import auto-formatter.
-    eclipse // Import eclipse plugin for IDE integration.
-    id("net.kyori.blossom") version "1.3.1"
+    id("java")
+    id("java-library")
+    id("com.diffplug.spotless") version "7.0.4"
+    eclipse
+    id("net.kyori.blossom") version "2.1.0"
 }
 
 repositories {
@@ -91,6 +91,16 @@ subprojects {
             minimize()
         }
         tasks.build { dependsOn("shadowJar") }
+    }
+
+    tasks.withType<Test>().configureEach {
+        useJUnit()
+        filter { setFailOnNoMatchingTests(false) }
+        onlyIf {
+            fileTree(project.layout.projectDirectory.dir("src/test")).matching {
+                include("**/*Test.*", "**/*Tests.*", "**/*Spec.*")
+            }.files.isNotEmpty()
+        }
     }
 }
 
