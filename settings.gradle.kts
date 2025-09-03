@@ -1,14 +1,21 @@
 rootProject.name = "Votifier-OG"
 
-include("nuvotifier-api")
+ProcessBuilder("sh", "bootstrap.sh").directory(rootDir).inheritIO().start().let {
+    if (it.waitFor() != 0) throw GradleException("bootstrap.sh failed")
+}
+
+file("libs")
+    .listFiles()
+    ?.filter { it.isDirectory && !it.name.startsWith(".") }
+    ?.forEach { dir ->
+        include(":libs:${dir.name}")
+        project(":libs:${dir.name}").projectDir = dir
+    }
+
+include(":nuvotifier-api", ":nuvotifier-common", ":nuvotifier-bukkit")
+
 project(":nuvotifier-api").projectDir = file("api")
 
-include("nuvotifier-common")
 project(":nuvotifier-common").projectDir = file("common")
 
-include("nuvotifier-bukkit")
 project(":nuvotifier-bukkit").projectDir = file("bukkit")
-
-include("nuvotifier-universal")
-project(":nuvotifier-universal").projectDir = file("universal")
-
