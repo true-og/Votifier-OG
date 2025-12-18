@@ -4,7 +4,7 @@ import org.gradle.kotlin.dsl.provideDelegate
 plugins {
     id("java") // Import Java plugin.
     id("java-library") // Import Java Library plugin.
-    id("com.diffplug.spotless") version "7.0.4" // Import Spotless plugin.
+    id("com.diffplug.spotless") version "8.1.0" // Import Spotless plugin.
     id("com.gradleup.shadow") version "8.3.9" // Import Shadow plugin.
     id("checkstyle") // Import Checkstyle plugin.
     eclipse // Import Eclipse plugin.
@@ -29,7 +29,7 @@ kotlin { jvmToolchain(17) }
 /* ----------------------------- Metadata ------------------------------ */
 group = "net.trueog.votifier-og" // Declare bundle identifier.
 
-version = "1.0" // Declare plugin version (will be in .jar).
+version = "1.0.1" // Declare plugin version (will be in .jar).
 
 val apiVersion = "1.19" // Declare minecraft server target version.
 
@@ -48,15 +48,20 @@ allprojects {
         gradlePluginPortal() // Import the Gradle Plugin Portal Maven Repository.
         maven { url = uri("https://repo.purpurmc.org/snapshots") } // Import the PurpurMC Maven Repository.
         maven { url = uri("file://${System.getProperty("user.home")}/.m2/repository") }
-        System.getProperty("SELF_MAVEN_LOCAL_REPO")?.let {
+        System.getProperty("SELF_MAVEN_LOCAL_REPO")?.let { // TrueOG Bootstrap mavenLocal().
             val dir = file(it)
             if (dir.isDirectory) {
                 println("Using SELF_MAVEN_LOCAL_REPO at: $it")
                 maven { url = uri("file://${dir.absolutePath}") }
             } else {
+                logger.error("TrueOG Bootstrap not found, defaulting to ~/.m2 for mavenLocal()")
                 mavenLocal()
             }
         }
+            ?: run {
+                logger.error("TrueOG Bootstrap not found, defaulting to ~/.m2 for mavenLocal()")
+                mavenLocal()
+            }
     }
 }
 
@@ -69,7 +74,7 @@ apply(from = "eclipse.gradle.kts") // Import eclipse classpath support script.
 
 /* ---------------------- Reproducible jars ---------------------------- */
 allprojects {
-    tasks.withType<AbstractArchiveTask>().configureEach {
+    tasks.withType<AbstractArchiveTask>().configureEach { // Ensure reproducible .jars
         isPreserveFileTimestamps = false
         isReproducibleFileOrder = true
     }
@@ -77,15 +82,30 @@ allprojects {
 
 /* ----------------------------- Shadow -------------------------------- */
 tasks.shadowJar {
-    archiveBaseName.set("Votifier-OG")
-    archiveClassifier.set("")
-    minimize()
-    exclude("LICENSE*")
+    exclude("io.github.miniplaceholders.*") // Exclude the MiniPlaceholders package from being shadowed.
+    isEnableRelocation = false
+    archiveClassifier.set("") // Use empty string instead of null.
 }
 
 tasks.jar { archiveClassifier.set("part") } // Applies to root jarfile only.
 
-tasks.build { dependsOn(tasks.spotlessApply, tasks.shadowJar) } // Build depends on spotless and shadow.
+val copyBukkitJarToRoot by tasks.registering(Copy::class)
+
+project(":nuvotifier-bukkit").pluginManager.withPlugin("com.gradleup.shadow") {
+    val bukkitShadowJarProvider = project(":nuvotifier-bukkit").tasks.named<Jar>("shadowJar")
+    copyBukkitJarToRoot.configure {
+        dependsOn(bukkitShadowJarProvider)
+        from(bukkitShadowJarProvider.flatMap { it.archiveFile })
+        into(layout.buildDirectory.dir("libs"))
+        rename { "Votifier-OG-${project.version}.jar" }
+    }
+}
+
+tasks.build {
+    dependsOn(tasks.spotlessApply, tasks.shadowJar, copyBukkitJarToRoot)
+} // Build depends on spotless and shadow.
+
+tasks.shadowJar { finalizedBy(copyBukkitJarToRoot) }
 
 /* --------------------------- Javac opts ------------------------------- */
 allprojects {
@@ -166,11 +186,14 @@ project(":nuvotifier-common") {
 }
 
 project(":nuvotifier-bukkit") {
+    apply(plugin = "com.gradleup.shadow")
+
     dependencies {
         compileOnly("org.purpurmc.purpur:purpur-api:1.19.4-R0.1-SNAPSHOT")
         implementation(project(":nuvotifier-api"))
         implementation(project(":nuvotifier-common"))
     }
+
     tasks.named<ProcessResources>("processResources") {
         duplicatesStrategy = DuplicatesStrategy.INCLUDE
         val props =
@@ -183,5 +206,12 @@ project(":nuvotifier-bukkit") {
         filesMatching("plugin.yml") { expand(props) }
         from(rootProject.file("LICENSE")) { into("/") }
     }
+
     tasks.named<Jar>("jar") { manifest { attributes("Implementation-Version" to project.version) } }
+
+    tasks.named<Jar>("shadowJar") {
+        archiveBaseName.set("Votifier-OG")
+        archiveVersion.set(rootProject.version.toString())
+        archiveClassifier.set("")
+    }
 }
