@@ -83,7 +83,8 @@ allprojects {
 /* ----------------------------- Shadow -------------------------------- */
 tasks.shadowJar {
     exclude("io.github.miniplaceholders.*") // Exclude the MiniPlaceholders package from being shadowed.
-    isEnableRelocation = false
+    isEnableRelocation = true
+    relocationPrefix = "${project.group}.shadow"
     archiveClassifier.set("") // Use empty string instead of null.
 }
 
